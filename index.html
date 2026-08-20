@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -866,7 +866,7 @@
         </div>
         <div>
           <label style="font-size: 0.72rem; color: var(--md-sys-color-on-surface-variant);">MODEL IDENTIFIER</label>
-          <input type="text" id="modelInput" value="gemini-2.5-flash" />
+          <input type="text" id="modelInput" value="gemini-3.5-flash-lite" />
         </div>
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -923,7 +923,7 @@
         navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
       }
 
-      let currentLang = localStorage.getItem('gemini_lang') || 'id';
+      let currentLang = localStorage.getItem('gemini_lang') || 'en';
 
       const I18N = {
         id: {
@@ -1055,7 +1055,7 @@
       const sendAskBtn = document.getElementById('sendAskBtn');
 
       apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
-      modelInput.value = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+      modelInput.value = localStorage.getItem('gemini_model') || 'gemini-3.5-flash-lite';
       const savedTemp = localStorage.getItem('gemini_temp') || '0.2';
       tempSlider.value = savedTemp;
       tempValueDisplay.textContent = savedTemp;
@@ -1506,7 +1506,7 @@
 
       async function executeScan(customQuestion = null) {
         const apiKey = apiKeyInput.value.trim();
-        const model = modelInput.value.trim() || 'gemini-2.5-flash';
+        const model = modelInput.value.trim() || 'gemini-3.5-flash-lite';
         const t = I18N[currentLang];
 
         if (!apiKey) {
@@ -1694,5 +1694,5 @@ Koordinat box_2d adalah integer 0 sampai 1000 [ymin, xmin, ymax, xmax].`;
         }
       });
     </script>
-  </body>
+  <script src="https://replit-cdn.com/replit-pill/replit-pill.global.js" data-referral-code="r1h5un0351j1" data-repl-id="438fc542-1f41-4c89-8e71-a01f72feb76c"></script></body>
 </html>
