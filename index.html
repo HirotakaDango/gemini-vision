@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#10131a">
+    <link rel="icon" id="faviconLink" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%2308427b'/><circle cx='256' cy='256' r='140' stroke='%23a8c7fa' stroke-width='32' fill='none'/><circle cx='256' cy='256' r='60' fill='%23a8c7fa'/><path d='M390 120 L420 120 M405 105 L405 135' stroke='%2338bdf8' stroke-width='24' stroke-linecap='round'/></svg>" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%2308427b'/><circle cx='256' cy='256' r='140' stroke='%23a8c7fa' stroke-width='32' fill='none'/><circle cx='256' cy='256' r='60' fill='%23a8c7fa'/><path d='M390 120 L420 120 M405 105 L405 135' stroke='%2338bdf8' stroke-width='24' stroke-linecap='round'/></svg>">
+    <link rel="manifest" id="manifestLink">
+    <title>Gemini Vision - Kamera Pintar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+      :root {
+        --md-sys-color-primary: #a8c7fa;
+        --md-sys-color-on-primary: #043058;
+        --md-sys-color-primary-container: #08427b;
+        --md-sys-color-on-primary-container: #d3e3fd;
+        --md-sys-color-surface: #10131a;
+        --md-sys-color-surface-container: rgba(29, 32, 39, 0.88);
+        --md-sys-color-surface-container-high: rgba(39, 42, 49, 0.95);
+        --md-sys-color-outline: rgba(255, 255, 255, 0.16);
+        --md-sys-color-outline-variant: rgba(255, 255, 255, 0.1);
+        --md-sys-color-on-surface: #e2e2e9;
+        --md-sys-color-on-surface-variant: #c4c6d0;
+        --md-sys-color-error: #ffb4ab;
+        --md-sys-color-on-error: #690005;
+        --md-shape-corner-small: 8px;
+        --md-shape-corner-medium: 16px;
+        --md-shape-corner-large: 24px;
+        --md-shape-corner-full: 9999px;
+        --md-elevation-floating: 0 16px 32px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', -apple-system, sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html, body {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        background: #000;
+        color: var(--md-sys-color-on-surface);
+        touch-action: manipulation;
+      }
+
+      .material-symbols-rounded {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .viewport {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100dvh;
+        background: #000;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .boxes-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      .md3-bbox {
+        position: absolute;
+        border: 2px solid var(--md-sys-color-primary);
+        border-radius: var(--md-shape-corner-small);
+        background: rgba(168, 199, 250, 0.15);
+        box-shadow: 0 0 12px rgba(168, 199, 250, 0.35);
+        will-change: transform, top, left, width, height;
+        animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+
+      .md3-bbox-badge {
+        position: absolute;
+        top: -24px;
+        left: -2px;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: var(--md-shape-corner-full);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      .laser-line {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), #fff, var(--md-sys-color-primary), transparent);
+        box-shadow: 0 0 12px var(--md-sys-color-primary);
+        z-index: 3;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .is-scanning .laser-line {
+        opacity: 1;
+        animation: laserSweep 1.3s ease-in-out infinite alternate;
+      }
+
+      @keyframes laserSweep {
+        0% { top: 10%; }
+        100% { top: 85%; }
+      }
+
+      .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: calc(env(safe-area-inset-top, 8px) + 8px) 12px 8px;
+        pointer-events: none;
+      }
+
+      .top-bar * {
+        pointer-events: auto;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(16, 19, 26, 0.75);
+        border: 1px solid var(--md-sys-color-outline);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 6px 10px;
+        border-radius: var(--md-shape-corner-full);
+        font-size: 0.74rem;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+
+      .top-actions-scroll {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 2px 2px 2px 8px;
+        max-width: 68%;
+      }
+
+      .top-actions-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .top-actions-scroll .icon-btn {
+        flex-shrink: 0;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #71717a;
+      }
+
+      .dot.live {
+        background: #4ade80;
+        box-shadow: 0 0 8px #4ade80;
+      }
+
+      .dot.busy {
+        background: var(--md-sys-color-primary);
+        box-shadow: 0 0 8px var(--md-sys-color-primary);
+        animation: blink 0.6s infinite alternate;
+      }
+
+      @keyframes blink {
+        0% { opacity: 0.2; }
+        100% { opacity: 1; }
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--md-shape-corner-full);
+        background: rgba(16, 19, 26, 0.75);
+        border: 1px solid var(--md-sys-color-outline);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: transform 0.15s, background-color 0.2s, border-color 0.2s;
+      }
+
+      .icon-btn:active {
+        transform: scale(0.9);
+      }
+
+      .icon-btn.active {
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+      }
+
+      .lang-btn, .zoom-btn {
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      #torchBtn.active {
+        background: #ca8a04;
+        color: #fff;
+        border-color: #facc15;
+        box-shadow: 0 0 14px rgba(250, 204, 21, 0.5);
+      }
+
+      .mode-chips {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 8px) + 56px);
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        gap: 6px;
+        padding: 0 14px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        pointer-events: auto;
+      }
+
+      .mode-chips::-webkit-scrollbar {
+        display: none;
+      }
+
+      .chip {
+        padding: 5px 12px;
+        border-radius: var(--md-shape-corner-full);
+        background: rgba(16, 19, 26, 0.75);
+        border: 1px solid var(--md-sys-color-outline);
+        color: var(--md-sys-color-on-surface-variant);
+        font-size: 0.72rem;
+        font-weight: 500;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        backdrop-filter: blur(12px);
+        cursor: pointer;
+      }
+
+      .chip.selected {
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+        border-color: var(--md-sys-color-primary);
+      }
+
+      .floating-info-card {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 24px);
+        max-width: 580px;
+        bottom: calc(env(safe-area-inset-bottom, 12px) + 94px);
+        z-index: 30;
+        background: var(--md-sys-color-surface-container);
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: var(--md-shape-corner-large);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow: var(--md-elevation-floating);
+        display: flex;
+        flex-direction: column;
+        max-height: 38vh;
+        overflow: hidden;
+        transition: max-height 0.3s cubic-bezier(0.2, 0, 0, 1), border-radius 0.3s ease;
+      }
+
+      .floating-info-card.expanded {
+        max-height: 65vh;
+      }
+
+      .floating-info-card.minimized {
+        height: 44px;
+        max-height: 44px;
+        border-radius: var(--md-shape-corner-full);
+        padding: 0 10px;
+        background: rgba(16, 19, 26, 0.92);
+        justify-content: center;
+      }
+
+      .floating-info-card.minimized .card-header-bar {
+        height: 100%;
+        padding: 0 4px;
+        display: flex;
+        align-items: center;
+      }
+
+      .floating-info-card.minimized .card-scroll-area,
+      .floating-info-card.minimized .manual-ask-bar {
+        display: none;
+      }
+
+      .card-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px 6px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .card-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--md-sys-color-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .card-actions-inline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .mini-btn {
+        background: transparent;
+        border: none;
+        color: var(--md-sys-color-on-surface-variant);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+        transition: color 0.2s, transform 0.15s;
+      }
+
+      .mini-btn:active {
+        transform: scale(0.9);
+      }
+
+      .stop-voice-btn {
+        display: none;
+        color: var(--md-sys-color-error);
+      }
+
+      .is-speaking .stop-voice-btn {
+        display: flex;
+        animation: pulseStop 1.2s infinite alternate ease-in-out;
+      }
+
+      @keyframes pulseStop {
+        0% { opacity: 0.7; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1.1); }
+      }
+
+      .manual-ask-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 2px 12px 6px;
+        padding: 4px 6px 4px 12px;
+        background: rgba(11, 14, 20, 0.85);
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: var(--md-shape-corner-full);
+        flex-shrink: 0;
+      }
+
+      .manual-ask-bar input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 0.82rem;
+      }
+
+      .manual-ask-bar input::placeholder {
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      .send-ask-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .send-ask-btn:active {
+        transform: scale(0.9);
+      }
+
+      .card-scroll-area {
+        padding: 2px 12px 14px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        scroll-behavior: smooth;
+      }
+
+      .chat-stream {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .chat-bubble {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 14px;
+        border-radius: var(--md-shape-corner-medium);
+        font-size: 0.86rem;
+        line-height: 1.4;
+        animation: bubblePop 0.25s cubic-bezier(0.2, 0, 0, 1) forwards;
+      }
+
+      @keyframes bubblePop {
+        0% { opacity: 0; transform: translateY(6px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+
+      .chat-bubble.user-turn {
+        align-self: flex-end;
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+        border-bottom-right-radius: 4px;
+        max-width: 86%;
+        font-weight: 500;
+      }
+
+      .chat-bubble.ai-turn {
+        align-self: flex-start;
+        background: rgba(16, 20, 28, 0.92);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        border-bottom-left-radius: 4px;
+        width: 100%;
+        color: var(--md-sys-color-on-surface);
+      }
+
+      .chat-bubble-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--md-sys-color-primary);
+      }
+
+      .summary-box {
+        font-size: 0.88rem;
+        line-height: 1.4;
+        color: var(--md-sys-color-on-surface);
+      }
+
+      .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .tag-chip {
+        background: var(--md-sys-color-surface-container-high);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        padding: 3px 8px;
+        border-radius: var(--md-shape-corner-full);
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .bullet-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: var(--md-sys-color-on-surface-variant);
+        line-height: 1.35;
+      }
+
+      .sound-wave {
+        display: none;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .is-speaking .sound-wave {
+        display: inline-flex;
+      }
+
+      .wave-line {
+        width: 2px;
+        height: 10px;
+        background: var(--md-sys-color-primary);
+        border-radius: 2px;
+        animation: soundDance 0.5s infinite alternate ease-in-out;
+      }
+
+      .wave-line:nth-child(2) {
+        animation-delay: 0.15s;
+        height: 14px;
+      }
+
+      .wave-line:nth-child(3) {
+        animation-delay: 0.3s;
+        height: 8px;
+      }
+
+      @keyframes soundDance {
+        0% { transform: scaleY(0.3); }
+        100% { transform: scaleY(1.3); }
+      }
+
+      .transparent-camera-dock {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 580px;
+        z-index: 40;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        align-items: center;
+        justify-items: stretch;
+        gap: 10px;
+        padding: 8px 12px calc(env(safe-area-inset-bottom, 12px) + 10px);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+        pointer-events: none;
+      }
+
+      .transparent-camera-dock * {
+        pointer-events: auto;
+      }
+
+      .dock-btn {
+        width: 100%;
+        height: 56px;
+        border-radius: var(--md-shape-corner-medium);
+        background: rgba(20, 24, 33, 0.85);
+        border: 1px solid var(--md-sys-color-outline);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        transition: transform 0.15s, background 0.2s, border-color 0.2s;
+      }
+
+      .dock-btn:active {
+        transform: scale(0.93);
+      }
+
+      .dock-btn .material-symbols-rounded {
+        font-size: 22px;
+      }
+
+      .dock-btn-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+
+      .dock-btn.active {
+        background: #7c2d12;
+        border-color: #f97316;
+        box-shadow: 0 0 16px rgba(249, 115, 22, 0.45);
+      }
+
+      .dock-btn-shutter {
+        background: var(--md-sys-color-primary-container);
+        border-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary-container);
+        height: 58px;
+      }
+
+      .dock-btn-shutter:active {
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+      }
+
+      .dock-btn.listening {
+        background: var(--md-sys-color-error);
+        color: var(--md-sys-color-on-error);
+        border-color: var(--md-sys-color-error);
+        animation: pulseMic 1s infinite alternate;
+      }
+
+      @keyframes pulseMic {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.06); }
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-card {
+        width: 100%;
+        max-width: 400px;
+        background: #191c24;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: var(--md-shape-corner-large);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .modal-card input {
+        width: 100%;
+        background: #0d0f14;
+        border: 1px solid #32353c;
+        color: #fff;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        outline: none;
+      }
+
+      .modal-card input:focus {
+        border-color: var(--md-sys-color-primary);
+      }
+
+      .select-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .select-wrapper select {
+        width: 100%;
+        background: #0d0f14;
+        border: 1px solid #32353c;
+        color: #fff;
+        padding: 10px 38px 10px 14px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+
+      .select-wrapper select:focus {
+        border-color: var(--md-sys-color-primary);
+      }
+
+      .select-chevron {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--md-sys-color-on-surface-variant);
+        font-size: 20px;
+      }
+
+      .save-btn {
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        font-weight: 700;
+        border: none;
+        padding: 12px;
+        border-radius: var(--md-shape-corner-full);
+        cursor: pointer;
+      }
+
+      canvas {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewport" id="viewport">
+      <video id="video" playsinline autoplay muted></video>
+      <div class="laser-line"></div>
+      <div class="boxes-overlay" id="boxesOverlay"></div>
+    </div>
+
+    <div class="top-bar">
+      <div class="status-pill">
+        <div class="dot" id="statusDot"></div>
+        <span id="statusText">Memulai Kamera...</span>
+      </div>
+
+      <div class="top-actions-scroll" id="topActionsScroll">
+        <button class="icon-btn lang-btn" id="langBtn" title="Ganti Bahasa">ID</button>
+        <button class="icon-btn zoom-btn" id="zoomBtn" title="Zoom">1x</button>
+        <button class="icon-btn" id="torchBtn" title="Senter">
+          <span class="material-symbols-rounded">flash_off</span>
+        </button>
+        <button class="icon-btn" id="voiceToggleBtn" title="Suara">
+          <span class="material-symbols-rounded">volume_up</span>
+        </button>
+        <button class="icon-btn" id="flipCamBtn" title="Putar Kamera">
+          <span class="material-symbols-rounded">flip_camera_ios</span>
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="Pengaturan">
+          <span class="material-symbols-rounded">settings</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mode-chips" id="modeChips">
+      <div class="chip selected" data-mode="detect"><span class="material-symbols-rounded">view_in_ar</span> <span class="chip-text">Deteksi Objek</span></div>
+      <div class="chip" data-mode="ocr"><span class="material-symbols-rounded">document_scanner</span> <span class="chip-text">Baca Teks</span></div>
+      <div class="chip" data-mode="scene"><span class="material-symbols-rounded">auto_awesome</span> <span class="chip-text">Detail Suasana</span></div>
+      <div class="chip" data-mode="food"><span class="material-symbols-rounded">restaurant</span> <span class="chip-text">Nutrisi & Makanan</span></div>
+    </div>
+
+    <div class="floating-info-card" id="infoCard">
+      <div class="card-header-bar" id="cardHeader">
+        <div class="card-title">
+          <span class="material-symbols-rounded" style="font-size: 18px;">psychology</span>
+          <span id="cardTitleText">Hasil Analisis AI</span>
+          <div class="sound-wave">
+            <div class="wave-line"></div>
+            <div class="wave-line"></div>
+            <div class="wave-line"></div>
+          </div>
+        </div>
+        
+        <div class="card-actions-inline">
+          <button class="mini-btn" id="resetChatBtn" title="Percakapan Baru">
+            <span class="material-symbols-rounded">restart_alt</span>
+          </button>
+          <button class="mini-btn stop-voice-btn" id="stopVoiceBtn" title="Hentikan Suara">
+            <span class="material-symbols-rounded">stop_circle</span>
+          </button>
+          <button class="mini-btn" id="toggleExpandBtn" title="Perbesar / Perkecil">
+            <span class="material-symbols-rounded" id="expandIcon">unfold_more</span>
+          </button>
+          <button class="mini-btn" id="minimizeBtn" title="Minimalkan">
+            <span class="material-symbols-rounded" id="minimizeIcon">expand_more</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="manual-ask-bar">
+        <input type="text" id="manualAskInput" placeholder="Ketik pertanyaan tentang gambar ini..." />
+        <button class="send-ask-btn" id="sendAskBtn" title="Kirim Pertanyaan">
+          <span class="material-symbols-rounded" style="font-size: 16px;">send</span>
+        </button>
+      </div>
+
+      <div class="card-scroll-area" id="cardContent">
+        <div class="chat-stream" id="chatStream">
+          <div class="chat-bubble ai-turn" id="initialBubble">
+            <div class="summary-box" id="summaryText">
+              Arahkan kamera ke objek. Ketik pertanyaan, gunakan suara, atau tekan tombol rana untuk memulai percakapan langsung.
+            </div>
+            <div class="tags-row" id="tagsRow" style="margin-top: 6px;">
+              <div class="tag-chip"><span class="material-symbols-rounded" style="font-size: 13px;">radar</span> <span id="standbyTagText">Siap Memindai</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="transparent-camera-dock">
+      <button class="dock-btn" id="autoScanBtn" title="Mode Pindai Otomatis">
+        <span class="material-symbols-rounded">autorenew</span>
+        <span class="dock-btn-label" id="autoScanText">Otomatis</span>
+      </button>
+
+      <button class="dock-btn dock-btn-shutter" id="shutterBtn" title="Ambil Foto & Pindai">
+        <span class="material-symbols-rounded">photo_camera</span>
+        <span class="dock-btn-label" id="shutterLabel">Pindai</span>
+      </button>
+
+      <button class="dock-btn" id="micBtn" title="Tanya dengan Suara">
+        <span class="material-symbols-rounded">mic</span>
+        <span class="dock-btn-label" id="micLabel">Suara</span>
+      </button>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal-card">
+        <h3 style="font-size: 1.1rem; color: #fff;" id="modalTitle">Pengaturan Gemini Vision</h3>
+        <div>
+          <label style="font-size: 0.72rem; color: var(--md-sys-color-on-surface-variant);">GOOGLE AI STUDIO API KEY</label>
+          <input type="password" id="apiKeyInput" placeholder="Tempel Gemini API key di sini..." />
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: var(--md-sys-color-on-surface-variant);">MODEL IDENTIFIER</label>
+          <input type="text" id="modelInput" value="gemini-2.5-flash" />
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label style="font-size: 0.72rem; color: var(--md-sys-color-on-surface-variant);" id="tempLabel">TEMPERATURE (KREATIVITAS)</label>
+            <span id="tempValueDisplay" style="font-size: 0.78rem; font-weight: 700; color: var(--md-sys-color-primary);">0.2</span>
+          </div>
+          <input type="range" id="tempSlider" min="0.0" max="1.0" step="0.05" value="0.2" style="width: 100%; accent-color: var(--md-sys-color-primary);" />
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: var(--md-sys-color-on-surface-variant);" id="personalityLabel">KEPRIBADIAN AI</label>
+          <div class="select-wrapper">
+            <select id="personalitySelect">
+              <option value="assistant">🤖 Asisten Cerdas & Objektif</option>
+              <option value="humorous">😄 Lucu, Santai & Humor</option>
+              <option value="detective">🕵️ Detektif Teliti & Kritis</option>
+              <option value="teacher">👨‍🏫 Guru / Edukatif Ramah</option>
+              <option value="poetic">✨ Puitis, Indah & Estetik</option>
+            </select>
+            <span class="material-symbols-rounded select-chevron">expand_more</span>
+          </div>
+        </div>
+        <button class="save-btn" id="closeSettingsBtn">Simpan & Mulai</button>
+      </div>
+    </div>
+
+    <script>
+      const pwaManifest = {
+        name: "Gemini Vision",
+        short_name: "GeminiCam",
+        description: "Live camera object identification and voice intelligence.",
+        start_url: window.location.href,
+        display: "standalone",
+        orientation: "portrait",
+        background_color: "#0b0e14",
+        theme_color: "#10131a",
+        icons: [{
+          src: document.getElementById('faviconLink').href,
+          sizes: "512x512",
+          type: "image/svg+xml",
+          purpose: "any maskable"
+        }]
+      };
+
+      const manifestBlob = new Blob([JSON.stringify(pwaManifest)], { type: 'application/manifest+json' });
+      document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(manifestBlob));
+
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          self.addEventListener('install', (e) => self.skipWaiting());
+          self.addEventListener('activate', (e) => clients.claim());
+          self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+      }
+
+      let currentLang = localStorage.getItem('gemini_lang') || 'id';
+
+      const I18N = {
+        id: {
+          statusStarting: 'Memulai Kamera...',
+          statusLive: 'Kamera Aktif',
+          statusBusy: 'Memindai...',
+          statusThinking: 'Berpikir...',
+          statusAutoScan: 'Otomatis Aktif',
+          statusBlocked: 'Kamera Diblokir',
+          cardTitle: 'Hasil Analisis AI',
+          defaultSummary: 'Arahkan kamera ke objek. Ketik pertanyaan, gunakan suara, atau tekan tombol rana untuk memulai percakapan langsung.',
+          standbyTag: 'Siap Memindai',
+          askPlaceholder: 'Ketik pertanyaan tentang gambar ini...',
+          autoBtn: 'Otomatis',
+          autoBtnActive: 'Memindai...',
+          shutterBtn: 'Pindai',
+          micBtn: 'Suara',
+          micListening: '🎙️ Mendengarkan... Silakan bertanya apa saja.',
+          apiKeyMissing: '⚠️ Kunci API belum diisi. Buka Pengaturan (⚙️).',
+          permDenied: '⚠️ Izin kamera ditolak atau tidak didukung browser.',
+          modalTitle: 'Pengaturan Gemini Vision',
+          tempLabel: 'TEMPERATURE (KREATIVITAS)',
+          personalityLabel: 'KEPRIBADIAN AI',
+          personalities: {
+            assistant: '🤖 Asisten Cerdas & Objektif',
+            humorous: '😄 Lucu, Santai & Humor',
+            detective: '🕵️ Detektif Teliti & Kritis',
+            teacher: '👨‍🏫 Guru / Edukatif Ramah',
+            poetic: '✨ Puitis, Indah & Estetik'
+          },
+          saveBtn: 'Simpan & Mulai',
+          chips: {
+            detect: 'Deteksi Objek',
+            ocr: 'Baca Teks',
+            scene: 'Detail Suasana',
+            food: 'Nutrisi & Makanan'
+          }
+        },
+        en: {
+          statusStarting: 'Starting Camera...',
+          statusLive: 'Camera Live',
+          statusBusy: 'Scanning...',
+          statusThinking: 'Thinking...',
+          statusAutoScan: 'Auto Scanning',
+          statusBlocked: 'Camera Blocked',
+          cardTitle: 'AI Vision Intel',
+          defaultSummary: 'Point camera at objects. Type questions, use voice, or tap the shutter to scan.',
+          standbyTag: 'Standby',
+          askPlaceholder: 'Ask anything about what the camera sees...',
+          autoBtn: 'Auto',
+          autoBtnActive: 'Scanning...',
+          shutterBtn: 'Snap',
+          micBtn: 'Voice',
+          micListening: '🎙️ Listening... Ask your question now.',
+          apiKeyMissing: '⚠️ API Key is missing. Tap Settings (⚙️).',
+          permDenied: '⚠️ Camera permission denied or unsupported.',
+          modalTitle: 'Gemini Vision Settings',
+          tempLabel: 'TEMPERATURE (CREATIVITY)',
+          personalityLabel: 'AI PERSONALITY',
+          personalities: {
+            assistant: '🤖 Smart & Objective Assistant',
+            humorous: '😄 Witty, Casual & Humorous',
+            detective: '🕵️ Precise & Analytical Detective',
+            teacher: '👨‍🏫 Friendly & Educational Teacher',
+            poetic: '✨ Poetic, Elegant & Aesthetic'
+          },
+          saveBtn: 'Save & Start',
+          chips: {
+            detect: 'Object Detect',
+            ocr: 'Read Text',
+            scene: 'Scene Details',
+            food: 'Nutrition & Food'
+          }
+        }
+      };
+
+      let stream = null;
+      let facingMode = 'environment';
+      let isProcessing = false;
+      let isAutoScanActive = false;
+      let isVoiceOutput = true;
+      let autoScanTimer = null;
+      let activeMode = 'detect';
+      let sheetState = 'normal';
+      let conversationHistory = [];
+      let isTorchOn = false;
+      let currentZoom = 1;
+      let speechQueue = [];
+      let availableVoices = [];
+      window._activeSpeechUtterance = null;
+
+      const viewport = document.getElementById('viewport');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const boxesOverlay = document.getElementById('boxesOverlay');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const infoCard = document.getElementById('infoCard');
+      const cardHeader = document.getElementById('cardHeader');
+      const cardContent = document.getElementById('cardContent');
+      const chatStream = document.getElementById('chatStream');
+      const toggleExpandBtn = document.getElementById('toggleExpandBtn');
+      const minimizeBtn = document.getElementById('minimizeBtn');
+      const stopVoiceBtn = document.getElementById('stopVoiceBtn');
+      const expandIcon = document.getElementById('expandIcon');
+      const minimizeIcon = document.getElementById('minimizeIcon');
+      const resetChatBtn = document.getElementById('resetChatBtn');
+      const shutterBtn = document.getElementById('shutterBtn');
+      const autoScanBtn = document.getElementById('autoScanBtn');
+      const autoScanText = document.getElementById('autoScanText');
+      const micBtn = document.getElementById('micBtn');
+      const flipCamBtn = document.getElementById('flipCamBtn');
+      const torchBtn = document.getElementById('torchBtn');
+      const zoomBtn = document.getElementById('zoomBtn');
+      const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+      const langBtn = document.getElementById('langBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsModal = document.getElementById('settingsModal');
+      const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+      const apiKeyInput = document.getElementById('apiKeyInput');
+      const modelInput = document.getElementById('modelInput');
+      const tempSlider = document.getElementById('tempSlider');
+      const tempValueDisplay = document.getElementById('tempValueDisplay');
+      const personalitySelect = document.getElementById('personalitySelect');
+      const shutterLabel = document.getElementById('shutterLabel');
+      const micLabel = document.getElementById('micLabel');
+      const modeChips = document.getElementById('modeChips');
+      const manualAskInput = document.getElementById('manualAskInput');
+      const sendAskBtn = document.getElementById('sendAskBtn');
+
+      apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+      modelInput.value = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+      const savedTemp = localStorage.getItem('gemini_temp') || '0.2';
+      tempSlider.value = savedTemp;
+      tempValueDisplay.textContent = savedTemp;
+      personalitySelect.value = localStorage.getItem('gemini_personality') || 'assistant';
+
+      tempSlider.oninput = () => {
+        tempValueDisplay.textContent = tempSlider.value;
+      };
+
+      function updateLanguageUI() {
+        const t = I18N[currentLang];
+        document.getElementById('langBtn').textContent = currentLang.toUpperCase();
+        document.getElementById('cardTitleText').textContent = t.cardTitle;
+        document.getElementById('manualAskInput').placeholder = t.askPlaceholder;
+        document.getElementById('autoScanText').textContent = isAutoScanActive ? t.autoBtnActive : t.autoBtn;
+        document.getElementById('shutterLabel').textContent = t.shutterBtn;
+        document.getElementById('micLabel').textContent = t.micBtn;
+        document.getElementById('modalTitle').textContent = t.modalTitle;
+        document.getElementById('tempLabel').textContent = t.tempLabel;
+        document.getElementById('personalityLabel').textContent = t.personalityLabel;
+        document.getElementById('closeSettingsBtn').textContent = t.saveBtn;
+
+        const summaryText = document.getElementById('summaryText');
+        if (summaryText) summaryText.textContent = t.defaultSummary;
+
+        const standbyTagText = document.getElementById('standbyTagText');
+        if (standbyTagText) standbyTagText.textContent = t.standbyTag;
+
+        if (!isProcessing) {
+          statusText.textContent = isAutoScanActive ? t.statusAutoScan : (stream ? t.statusLive : t.statusStarting);
+        }
+
+        const currentVal = personalitySelect.value;
+        personalitySelect.innerHTML = Object.entries(t.personalities)
+          .map(([key, label]) => `<option value="${key}">${label}</option>`)
+          .join('');
+        personalitySelect.value = currentVal;
+        
+        const chips = document.querySelectorAll('.chip');
+        chips.forEach(c => {
+          const key = c.dataset.mode;
+          const textSpan = c.querySelector('.chip-text');
+          if (textSpan && t.chips[key]) textSpan.textContent = t.chips[key];
+        });
+      }
+
+      langBtn.onclick = () => {
+        currentLang = currentLang === 'id' ? 'en' : 'id';
+        localStorage.setItem('gemini_lang', currentLang);
+        updateLanguageUI();
+      };
+
+      settingsBtn.onclick = () => settingsModal.classList.add('open');
+      closeSettingsBtn.onclick = () => {
+        localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
+        localStorage.setItem('gemini_model', modelInput.value.trim());
+        localStorage.setItem('gemini_temp', tempSlider.value);
+        localStorage.setItem('gemini_personality', personalitySelect.value);
+        settingsModal.classList.remove('open');
+      };
+
+      function applySheetState(state) {
+        sheetState = state;
+        infoCard.classList.remove('minimized', 'expanded');
+        if (sheetState === 'minimized') {
+          infoCard.classList.add('minimized');
+          minimizeIcon.textContent = 'expand_less';
+          expandIcon.textContent = 'unfold_more';
+        } else if (sheetState === 'expanded') {
+          infoCard.classList.add('expanded');
+          minimizeIcon.textContent = 'expand_more';
+          expandIcon.textContent = 'unfold_less';
+        } else {
+          minimizeIcon.textContent = 'expand_more';
+          expandIcon.textContent = 'unfold_more';
+        }
+      }
+
+      minimizeBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (sheetState === 'minimized') {
+          applySheetState('normal');
+        } else {
+          applySheetState('minimized');
+        }
+      };
+
+      toggleExpandBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (sheetState === 'expanded') {
+          applySheetState('normal');
+        } else {
+          applySheetState('expanded');
+        }
+      };
+
+      cardHeader.onclick = (e) => {
+        if (e.target.closest('.mini-btn')) return;
+        if (sheetState === 'minimized') {
+          applySheetState('normal');
+        }
+      };
+
+      function removeInitialTutorial() {
+        const init = document.getElementById('initialBubble');
+        if (init) init.remove();
+      }
+
+      function resetConversation() {
+        conversationHistory = [];
+        boxesOverlay.innerHTML = '';
+        stopSpeaking();
+        const t = I18N[currentLang];
+        chatStream.innerHTML = `
+          <div class="chat-bubble ai-turn" id="initialBubble">
+            <div class="summary-box" id="summaryText">${t.defaultSummary}</div>
+            <div class="tags-row" id="tagsRow" style="margin-top:6px;">
+              <div class="tag-chip"><span class="material-symbols-rounded" style="font-size:13px;">radar</span> <span id="standbyTagText">${t.standbyTag}</span></div>
+            </div>
+          </div>
+        `;
+      }
+
+      resetChatBtn.onclick = (e) => {
+        e.stopPropagation();
+        resetConversation();
+      };
+
+      function scrollToBubble(bubble) {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            if (!bubble) return;
+            const cardRect = cardContent.getBoundingClientRect();
+            const bubbleRect = bubble.getBoundingClientRect();
+            const targetScroll = cardContent.scrollTop + (bubbleRect.top - cardRect.top) - 6;
+            cardContent.scrollTo({
+              top: Math.max(0, targetScroll),
+              behavior: 'smooth'
+            });
+          }, 40);
+        });
+      }
+
+      function appendUserBubble(text) {
+        removeInitialTutorial();
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble user-turn';
+        bubble.innerText = text;
+        chatStream.appendChild(bubble);
+        scrollToBubble(bubble);
+      }
+
+      function appendAiBubble(parsed) {
+        removeInitialTutorial();
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ai-turn';
+
+        let tagsHtml = '';
+        if (parsed.tags && Array.isArray(parsed.tags) && parsed.tags.length) {
+          tagsHtml = `
+            <div class="tags-row" style="margin-top:6px;">
+              ${parsed.tags.map(tag => `<div class="tag-chip"><span class="material-symbols-rounded" style="font-size:13px;">label</span> ${escapeHtml(tag)}</div>`).join('')}
+            </div>
+          `;
+        }
+
+        let detailsHtml = '';
+        if (parsed.details && Array.isArray(parsed.details) && parsed.details.length) {
+          detailsHtml = `
+            <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
+              ${parsed.details.map(d => `
+                <div class="bullet-item">
+                  <span class="material-symbols-rounded" style="font-size:15px; color:var(--md-sys-color-primary);">check_circle</span>
+                  <span>${escapeHtml(d)}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        bubble.innerHTML = `
+          <div class="chat-bubble-header">
+            <span>GEMINI AI</span>
+          </div>
+          <div class="summary-box">${escapeHtml(parsed.summary || '')}</div>
+          ${tagsHtml}
+          ${detailsHtml}
+        `;
+
+        chatStream.appendChild(bubble);
+        scrollToBubble(bubble);
+      }
+
+      function submitManualQuestion() {
+        const q = manualAskInput.value.trim();
+        if (!q) return;
+        manualAskInput.value = '';
+        if (sheetState === 'minimized') applySheetState('normal');
+        executeScan(q);
+      }
+
+      sendAskBtn.onclick = submitManualQuestion;
+      manualAskInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitManualQuestion();
+      });
+
+      modeChips.onclick = (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        activeMode = chip.dataset.mode;
+        if (isAutoScanActive) executeScan();
+      };
+
+      async function setupCamera() {
+        isTorchOn = false;
+        if (torchBtn) {
+          torchBtn.querySelector('.material-symbols-rounded').textContent = 'flash_off';
+          torchBtn.classList.remove('active');
+        }
+        currentZoom = 1;
+        if (zoomBtn) {
+          zoomBtn.textContent = '1x';
+          zoomBtn.classList.remove('active');
+        }
+        video.style.transform = '';
+
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        statusDot.className = 'dot busy';
+        statusText.textContent = I18N[currentLang].statusStarting;
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: facingMode },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: { ideal: 30 }
+            },
+            audio: false
+          });
+          video.srcObject = stream;
+          await video.play();
+          statusDot.className = 'dot live';
+          statusText.textContent = I18N[currentLang].statusLive;
+        } catch (err) {
+          statusDot.className = 'dot';
+          statusText.textContent = I18N[currentLang].statusBlocked;
+        }
+      }
+
+      flipCamBtn.onclick = () => {
+        facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+        setupCamera();
+      };
+
+      async function toggleTorch() {
+        if (!stream) return;
+        const track = stream.getVideoTracks()[0];
+        if (!track) return;
+        const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+        if (!capabilities.torch) return;
+
+        try {
+          isTorchOn = !isTorchOn;
+          await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
+          torchBtn.querySelector('.material-symbols-rounded').textContent = isTorchOn ? 'flash_on' : 'flash_off';
+          torchBtn.classList.toggle('active', isTorchOn);
+        } catch (err) {}
+      }
+
+      torchBtn.onclick = toggleTorch;
+
+      async function setZoom(level) {
+        currentZoom = level;
+        const track = stream ? stream.getVideoTracks()[0] : null;
+        const capabilities = track && track.getCapabilities ? track.getCapabilities() : {};
+
+        if (capabilities.zoom) {
+          const minZ = capabilities.zoom.min || 1;
+          const maxZ = capabilities.zoom.max || 5;
+          const targetZ = Math.min(Math.max(level, minZ), maxZ);
+          try {
+            await track.applyConstraints({ advanced: [{ zoom: targetZ }] });
+          } catch (e) {}
+        } else {
+          video.style.transform = level > 1 ? `scale(${level})` : '';
+          video.style.transformOrigin = 'center center';
+        }
+        zoomBtn.textContent = `${level}x`;
+        zoomBtn.classList.toggle('active', level > 1);
+      }
+
+      zoomBtn.onclick = () => {
+        const zoomLevels = [1, 2, 3];
+        const nextIdx = (zoomLevels.indexOf(currentZoom) + 1) % zoomLevels.length;
+        setZoom(zoomLevels[nextIdx]);
+      };
+
+      function captureFastFrame() {
+        if (!video.videoWidth || !video.videoHeight) return null;
+        const targetW = 640;
+        const targetH = Math.round((video.videoHeight / video.videoWidth) * targetW);
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(video, 0, 0, targetW, targetH);
+        return canvas.toDataURL('image/jpeg', 0.72).split(',')[1];
+      }
+
+      function renderBoxes(objects) {
+        boxesOverlay.innerHTML = '';
+        if (!objects || !Array.isArray(objects)) return;
+
+        const vRect = viewport.getBoundingClientRect();
+        const vw = video.videoWidth || vRect.width;
+        const vh = video.videoHeight || vRect.height;
+        const scale = Math.max(vRect.width / vw, vRect.height / vh);
+        const renderedW = vw * scale;
+        const renderedH = vh * scale;
+        const offsetX = (vRect.width - renderedW) / 2;
+        const offsetY = (vRect.height - renderedH) / 2;
+
+        objects.forEach((obj) => {
+          if (!obj.box_2d || obj.box_2d.length < 4) return;
+          const [ymin, xmin, ymax, xmax] = obj.box_2d;
+          const top = offsetY + (ymin / 1000) * renderedH;
+          const left = offsetX + (xmin / 1000) * renderedW;
+          const width = ((xmax - xmin) / 1000) * renderedW;
+          const height = ((ymax - ymin) / 1000) * renderedH;
+
+          const box = document.createElement('div');
+          box.className = 'md3-bbox';
+          box.style.top = `${Math.max(0, top)}px`;
+          box.style.left = `${Math.max(0, left)}px`;
+          box.style.width = `${width}px`;
+          box.style.height = `${height}px`;
+
+          box.innerHTML = `
+            <div class="md3-bbox-badge">
+              <span class="material-symbols-rounded" style="font-size:12px;">sell</span>
+              ${escapeHtml(obj.label || 'Objek')}
+            </div>
+          `;
+          boxesOverlay.appendChild(box);
+        });
+      }
+
+      function escapeHtml(s) {
+        return (s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+      }
+
+      function refreshVoices() {
+        if (!('speechSynthesis' in window)) return;
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) availableVoices = v;
+      }
+
+      if ('speechSynthesis' in window) {
+        refreshVoices();
+        window.speechSynthesis.onvoiceschanged = refreshVoices;
+      }
+
+      function stopSpeaking() {
+        speechQueue = [];
+        window._activeSpeechUtterance = null;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+        document.body.classList.remove('is-speaking');
+      }
+
+      stopVoiceBtn.onclick = (e) => {
+        e.stopPropagation();
+        stopSpeaking();
+      };
+
+      function findVoiceForLang(langCode) {
+        if (!availableVoices.length) refreshVoices();
+        const prefix = langCode.toLowerCase().split('-')[0];
+        let found = availableVoices.find(v => v.lang && v.lang.toLowerCase() === langCode.toLowerCase());
+        if (found) return found;
+        found = availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
+        if (found) return found;
+        return availableVoices.find(v => v.default) || availableVoices[0] || null;
+      }
+
+      function playNextSpeechQueue() {
+        if (!isVoiceOutput || !speechQueue.length) {
+          stopSpeaking();
+          return;
+        }
+
+        const sentence = speechQueue.shift();
+        const targetLang = currentLang === 'id' ? 'id-ID' : 'en-US';
+        const utterance = new SpeechSynthesisUtterance(sentence);
+        window._activeSpeechUtterance = utterance;
+
+        utterance.lang = targetLang;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        const voice = findVoiceForLang(targetLang);
+        if (voice) utterance.voice = voice;
+
+        utterance.onend = () => {
+          window._activeSpeechUtterance = null;
+          playNextSpeechQueue();
+        };
+
+        utterance.onerror = () => {
+          window._activeSpeechUtterance = null;
+          playNextSpeechQueue();
+        };
+
+        document.body.classList.add('is-speaking');
+        try {
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          playNextSpeechQueue();
+        }
+      }
+
+      function speakNarration(text) {
+        if (!isVoiceOutput || !('speechSynthesis' in window) || !text) return;
+        stopSpeaking();
+        const clean = text.replace(/[*_#`~\[\]\(\)\{\}<>]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!clean) return;
+
+        const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [clean];
+        speechQueue = [];
+        chunks.forEach(c => {
+          const t = c.trim();
+          if (t) speechQueue.push(t);
+        });
+
+        if (speechQueue.length > 0) {
+          setTimeout(playNextSpeechQueue, 60);
+        }
+      }
+
+      voiceToggleBtn.onclick = () => {
+        isVoiceOutput = !isVoiceOutput;
+        voiceToggleBtn.querySelector('.material-symbols-rounded').textContent = isVoiceOutput ? 'volume_up' : 'volume_off';
+        voiceToggleBtn.classList.toggle('active', !isVoiceOutput);
+        if (!isVoiceOutput) stopSpeaking();
+      };
+
+      async function executeScan(customQuestion = null) {
+        const apiKey = apiKeyInput.value.trim();
+        const model = modelInput.value.trim() || 'gemini-2.5-flash';
+        const t = I18N[currentLang];
+
+        if (!apiKey) {
+          settingsModal.classList.add('open');
+          return;
+        }
+
+        if (isProcessing) return;
+        isProcessing = true;
+
+        viewport.classList.add('is-scanning');
+        statusDot.className = 'dot busy';
+        statusText.textContent = customQuestion ? t.statusThinking : t.statusBusy;
+
+        const base64Image = captureFastFrame();
+        if (!base64Image) {
+          isProcessing = false;
+          viewport.classList.remove('is-scanning');
+          return;
+        }
+
+        if (customQuestion) {
+          appendUserBubble(customQuestion);
+        }
+
+        const personality = personalitySelect.value;
+        let personalityInstruction = "";
+
+        if (currentLang === 'id') {
+          if (personality === 'humorous') personalityInstruction = "Gunakan gaya bicara santai, cerdas, dan sedikit humor.";
+          else if (personality === 'detective') personalityInstruction = "Gunakan gaya bicara detektif yang teliti mengamati bukti visual.";
+          else if (personality === 'teacher') personalityInstruction = "Gunakan gaya bicara guru yang edukatif dan ramah.";
+          else if (personality === 'poetic') personalityInstruction = "Gunakan gaya bicara puitis dan estetis.";
+          else personalityInstruction = "Gunakan gaya bicara asisten cerdas yang objektif.";
+        } else {
+          if (personality === 'humorous') personalityInstruction = "Use a witty and playful tone.";
+          else if (personality === 'detective') personalityInstruction = "Use an analytical detective tone.";
+          else if (personality === 'teacher') personalityInstruction = "Use an educational and supportive tone.";
+          else if (personality === 'poetic') personalityInstruction = "Use a poetic and aesthetic tone.";
+          else personalityInstruction = "Use a helpful and smart assistant tone.";
+        }
+
+        const langRule = currentLang === 'id' 
+          ? `Gunakan Bahasa Indonesia alami. ${personalityInstruction}`
+          : `Use natural English. ${personalityInstruction}`;
+
+        let modeInstruction = "Deteksi dan jelaskan objek utama di frame dengan koordinat bounding box 2D.";
+        if (activeMode === 'ocr') modeInstruction = "Baca dan ekstrak seluruh teks, tulisan, merek, atau angka di frame.";
+        if (activeMode === 'scene') modeInstruction = "Analisis konteks visual secara mendalam, suasana, dan tandai elemen utama.";
+        if (activeMode === 'food') modeInstruction = "Identifikasi makanan/minuman, perkiraan porsi, dan kandungan nutrisi.";
+
+        if (customQuestion) {
+          modeInstruction = `Pengguna bertanya: "${customQuestion}". Jawab akurat berdasarkan visual dan konteks obrolan.`;
+        }
+
+        const schemaInstruction = `
+Keluarkan format JSON valid sesuai skema ini:
+{
+  "summary": "Ringkasan jawaban naratif (2-3 kalimat)",
+  "tags": ["Tag1", "Tag2", "Tag3"],
+  "details": ["Observasi detail 1", "Observasi detail 2"],
+  "objects": [{"label": "Nama Objek", "box_2d": [ymin, xmin, ymax, xmax]}]
+}
+Koordinat box_2d adalah integer 0 sampai 1000 [ymin, xmin, ymax, xmax].`;
+
+        const promptText = `${modeInstruction}\n${langRule}\n${schemaInstruction}`;
+
+        if (conversationHistory.length > 8) {
+          conversationHistory = conversationHistory.slice(-6);
+        }
+
+        const currentTurnParts = [
+          { text: promptText },
+          { inline_data: { mime_type: 'image/jpeg', data: base64Image } }
+        ];
+
+        const requestContents = [
+          ...conversationHistory,
+          { role: 'user', parts: currentTurnParts }
+        ];
+
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: requestContents,
+              generationConfig: {
+                response_mime_type: "application/json",
+                temperature: parseFloat(tempSlider.value) || 0.2,
+                maxOutputTokens: 900
+              }
+            })
+          });
+
+          const data = await res.json();
+          if (data.error) throw new Error(data.error.message || 'API Error');
+
+          const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          let parsed = null;
+
+          try {
+            parsed = JSON.parse(raw);
+          } catch {
+            const match = raw.match(/\{[\s\S]*\}/);
+            parsed = match ? JSON.parse(match[0]) : { summary: raw ? raw.trim() : '', tags: [], details: [], objects: [] };
+          }
+
+          conversationHistory.push({ role: 'user', parts: [{ text: customQuestion || modeInstruction }] });
+          conversationHistory.push({ role: 'model', parts: [{ text: JSON.stringify(parsed) }] });
+
+          appendAiBubble(parsed);
+          renderBoxes(parsed.objects || []);
+
+          let fullVoice = parsed.summary || '';
+          if (parsed.details && Array.isArray(parsed.details) && parsed.details.length > 0) {
+            fullVoice += '. ' + parsed.details.join('. ');
+          }
+          if (fullVoice) {
+            speakNarration(fullVoice);
+          }
+
+        } catch (err) {
+          appendAiBubble({ summary: `Error: ${err.message}`, tags: [], details: [], objects: [] });
+        } finally {
+          isProcessing = false;
+          viewport.classList.remove('is-scanning');
+          statusDot.className = isAutoScanActive ? 'dot busy' : 'dot live';
+          statusText.textContent = isAutoScanActive ? t.statusAutoScan : t.statusLive;
+        }
+      }
+
+      shutterBtn.onclick = () => {
+        if (isAutoScanActive) toggleAutoScan();
+        executeScan();
+      };
+
+      function toggleAutoScan() {
+        isAutoScanActive = !isAutoScanActive;
+        const t = I18N[currentLang];
+        autoScanBtn.classList.toggle('active', isAutoScanActive);
+        autoScanText.textContent = isAutoScanActive ? t.autoBtnActive : t.autoBtn;
+
+        if (isAutoScanActive) {
+          executeScan();
+          autoScanTimer = setInterval(() => {
+            if (!isProcessing) executeScan();
+          }, 3000);
+        } else {
+          clearInterval(autoScanTimer);
+          autoScanTimer = null;
+          statusText.textContent = t.statusLive;
+        }
+      }
+
+      autoScanBtn.onclick = toggleAutoScan;
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        const recognizer = new SpeechRec();
+        recognizer.onstart = () => {
+          micBtn.classList.add('listening');
+          if (sheetState === 'minimized') applySheetState('normal');
+        };
+        recognizer.onresult = (e) => {
+          const query = e.results[0][0].transcript;
+          executeScan(query);
+        };
+        recognizer.onend = () => micBtn.classList.remove('listening');
+        recognizer.onerror = () => micBtn.classList.remove('listening');
+
+        micBtn.onclick = () => {
+          recognizer.lang = currentLang === 'id' ? 'id-ID' : 'en-US';
+          try { recognizer.start(); } catch { recognizer.stop(); }
+        };
+      } else {
+        micBtn.style.opacity = '0.4';
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        updateLanguageUI();
+        setupCamera();
+        if (!apiKeyInput.value) {
+          setTimeout(() => settingsModal.classList.add('open'), 400);
+        }
+      });
+    </script>
+  </body>
+</html>
